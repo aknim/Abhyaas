@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">TestPrep</string>
+
+    <string name="hello_world">Be ready to learn!</string>
+    <string name="action_settings">Settings</string>
+    <string name="question">Which option do you choose?</string>
+    <string name="option1">This is the first option</string>
+    <string name="option2">This is the 2nd option</string>
+    <string name="option3">This is the 3rd option</string>
+    <string name="option4">This is the 4th option</string>
+</resources>

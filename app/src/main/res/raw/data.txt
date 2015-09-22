@@ -1,0 +1,4 @@
+3
+What is 2+2?;4;8;2;0;1
+What is square root of 100?;5;10;20;25;2
+What comes after March?;Jan;Feb;Apr;Jun;3
