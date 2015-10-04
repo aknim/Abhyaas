@@ -40,9 +40,9 @@
         android:text="@string/option1"
         android:textSize="20sp"
         android:button="@null"
-        android:background="@color/background_material_light"
         android:layout_marginTop="2sp"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:background="@drawable/radio_background"/>
 
     <RadioButton
         android:id="@+id/op2"
@@ -52,7 +52,8 @@
         android:textSize="20sp"
         android:button="@null"
 
-        android:background="@color/background_material_light"
+
+        android:background="@drawable/radio_background"
         android:layout_marginTop="2sp"
         android:gravity="center"/>
 
@@ -64,7 +65,7 @@
         android:textSize="20sp"
         android:button="@null"
 
-        android:background="@color/background_material_light"
+        android:background="@drawable/radio_background"
         android:layout_marginTop="2sp"
         android:gravity="center"/>
 
@@ -75,7 +76,7 @@
         android:text="@string/option4"
         android:textSize="20sp"
         android:button="@null"
-        android:background="@color/background_material_light"
+        android:background="@drawable/radio_background"
         android:layout_marginTop="2sp"
         android:gravity="center"/>
     </RadioGroup>

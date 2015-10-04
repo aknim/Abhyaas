@@ -2,6 +2,7 @@ package com.abhyaas.app.testprep;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.graphics.Color;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
@@ -97,6 +98,8 @@ public class MainActivity extends ActionBarActivity {
         ((Button) findViewById(R.id.finish)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                RadioGroup rg = (RadioGroup) findViewById(R.id.rgroup);
+                q.setMarkedAnswer(rg.indexOfChild(rg.findViewById(rg.getCheckedRadioButtonId())) + 1);
                 displayResult();
             }
         });
@@ -123,8 +126,10 @@ public class MainActivity extends ActionBarActivity {
         ((RadioGroup) findViewById(R.id.rgroup)).clearCheck();
 
         RadioGroup rg = (RadioGroup) findViewById(R.id.rgroup);
-        if (q.markedAnswer != -2 && q.markedAnswer != 0)
+        if (q.markedAnswer != -2 && q.markedAnswer != 0) {
             rg.check(((RadioButton) rg.getChildAt(q.markedAnswer - 1)).getId());
+            ((RadioButton) rg.getChildAt(q.markedAnswer - 1)).setBackgroundColor(Color.parseColor("#d3d3d3"));
+        }
         //Set to 0, when it clears the check. When it clears the check, it stores the value of 0
     }
 
