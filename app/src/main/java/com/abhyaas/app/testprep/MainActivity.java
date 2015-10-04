@@ -98,7 +98,6 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 displayResult();
-                downloadFile();
             }
         });
     }
@@ -151,7 +150,4 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    void downloadFile() {
-
-    }
 }
