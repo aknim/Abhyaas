@@ -23,10 +23,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.util.concurrent.ExecutionException;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -103,6 +108,22 @@ public class MainActivity extends ActionBarActivity {
                 displayResult();
             }
         });
+
+        ((Button) findViewById(R.id.send)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String text = (String) ((TextView)findViewById(R.id.myMsg)).getText();
+                //new QuestionPaper(new DownloadTask().execute("").get());
+                try {
+                    text = new Post().execute(text).get();
+                } catch (InterruptedException e) {
+                    Log.d("post",e.toString());
+                } catch (ExecutionException e) {
+                    Log.d("post",e.toString());
+                }
+                ((TextView) findViewById(R.id.serverResponse)).setText(text);
+            }
+            });
     }
 
     private void setupView() {

@@ -106,5 +106,29 @@
     <TextView
         android:id="@+id/debug"
         android:layout_width="match_parent"
-        android:layout_height="fill_parent" />
+        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/myMsg"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:text="Uninitialized"/>
+        <Button
+            android:id="@+id/send"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:text="ClickMe"/>
+        <TextView
+            android:id="@+id/serverResponse"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ServerMsg"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ServerMsg"/>
+    </LinearLayout>
 </LinearLayout>
