@@ -66,7 +66,7 @@ public class MainActivity extends ActionBarActivity {
     /*
     Not in use
      */
-    private void setupQuestionPaper1() {
+    private void FileToQuestion() {
         String file = "data.txt";
         try {
             Log.d("tracing", "try of setupQP1");
@@ -81,7 +81,9 @@ public class MainActivity extends ActionBarActivity {
     private void setupQuestionPaper(){
         try {
             Log.d("tracing", "try of setupQP");
-            qp = new QuestionPaper(new DownloadTask().execute("").get());
+            String qp_text = new Post().execute("req","").get();
+            qp = new QuestionPaper(qp_text);
+            //qp = new QuestionPaper(new DownloadTask().execute("").get());
         } catch (Exception e) {
             Log.d("setupQPException", e.getMessage());
             ((TextView) findViewById(R.id.debug)).setText((CharSequence) e.toString());

@@ -41,4 +41,16 @@ public class QuestionPaper {
             ql[i] = new Question(line);
         }
     }
+
+    public QuestionPaper(String qp_text){
+        String [] lines = qp_text.split("\n");
+        String line = lines[0];
+        numOfQs = Integer.parseInt(line);
+        Log.d("numOfQs", ""+numOfQs);
+        ql = new Question[numOfQs];
+        for(int i =0;i<numOfQs;i++){
+            line = lines[i+1];//0th line gave number of qs
+            ql[i] = new Question(line);
+        }
+    }
 }
