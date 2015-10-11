@@ -135,7 +135,17 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void displayResult() {
-        ((TextView) findViewById(R.id.debug)).setText(qp.result());
+        String result = qp.result();
+        int score = Integer.parseInt(result.split("\n")[0]);
+        String fromServer = "";
+        try {
+            fromServer = new Post().execute("data","1;"+score).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        ((TextView) findViewById(R.id.debug)).setText(fromServer + "\n"+result);
     }
 
 

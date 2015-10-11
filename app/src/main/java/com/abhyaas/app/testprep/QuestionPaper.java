@@ -14,6 +14,7 @@ public class QuestionPaper {
     Question [] ql;
     int numOfQs = -1;
     int currQ = -1;
+    int score = 0;
     Question getNext(int inc){
         currQ = (currQ+inc+numOfQs)%numOfQs;
         return ql[currQ];
@@ -27,8 +28,9 @@ public class QuestionPaper {
         String ans = "";
         for(int i=0;i<numOfQs;i++){
             ans+="q: "+i+" marked: "+ql[i].markedAnswer+" correct: "+ql[i].answer+"\n";
+            if(ql[i].markedAnswer==ql[i].answer) score++;
         }
-        return ans;
+        return score+"\n"+ans;
     }
 
     public QuestionPaper(BufferedReader br) throws IOException {
