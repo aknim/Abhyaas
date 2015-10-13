@@ -96,6 +96,7 @@ public class MainActivity extends ActionBarActivity {
             public void onClick(View v) {
                 RadioGroup rg = (RadioGroup) findViewById(R.id.rgroup);
                 q.setMarkedAnswer(rg.indexOfChild(rg.findViewById(rg.getCheckedRadioButtonId())) + 1);
+                Log.d("bugMOT", qp.result());
                 q = qp.getNext(((NavigateButton) v).increment);
                 ((TextView) findViewById(R.id.debug)).setText("lsnr" + q.markedAnswer);
                 setupQuestion();
@@ -151,17 +152,22 @@ public class MainActivity extends ActionBarActivity {
 
     private void setupQuestion() {
         ((TextView) findViewById(R.id.quesText)).setText(q.question);
-        ((RadioButton) findViewById(R.id.op1)).setText(q.op1);
-        ((RadioButton) findViewById(R.id.op2)).setText(q.op2);
-        ((RadioButton) findViewById(R.id.op3)).setText(q.op3);
-        ((RadioButton) findViewById(R.id.op4)).setText(q.op4);
+        RadioButton rb1 = ((RadioButton) findViewById(R.id.op1));
+        RadioButton rb2 = ((RadioButton) findViewById(R.id.op2));
+        RadioButton rb3 = ((RadioButton) findViewById(R.id.op3));
+        RadioButton rb4 = ((RadioButton) findViewById(R.id.op4));
 
-        ((RadioGroup) findViewById(R.id.rgroup)).clearCheck();
-
+        rb1.setText(q.op1);
+        rb2.setText(q.op2);
+        rb3.setText(q.op3);
+        rb4.setText(q.op4);
         RadioGroup rg = (RadioGroup) findViewById(R.id.rgroup);
+
+        int checkId = rg.getCheckedRadioButtonId();
+        rg.clearCheck();
         if (q.markedAnswer != -2 && q.markedAnswer != 0) {
             rg.check(((RadioButton) rg.getChildAt(q.markedAnswer - 1)).getId());
-            ((RadioButton) rg.getChildAt(q.markedAnswer - 1)).setBackgroundColor(Color.parseColor("#d3d3d3"));
+            ((RadioButton) rg.getChildAt(q.markedAnswer - 1)).setChecked(true);
         }
         //Set to 0, when it clears the check. When it clears the check, it stores the value of 0
     }
