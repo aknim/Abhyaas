@@ -12,10 +12,12 @@ import java.io.IOException;
  */
 public class QuestionPaper {
     Question [] ql;
-    int [] marked;
+    private int [] marked;
+    private int [] time;
     int numOfQs = -1;
     int currQ = -1;
     int score = 0;
+
 
     int getNext(int inc){
         currQ += inc;
@@ -26,6 +28,19 @@ public class QuestionPaper {
         marked[currQ] = ans;
     }
 
+    void markTime(int markTime){
+        time[currQ] = markTime;
+        updateScore();
+    }
+    void updateScore(){
+        score+=time[currQ]*2;
+    }
+
+
+    int getScore(){
+        return score;
+    }
+
     boolean isCurrCorrect(){
         return ql[currQ].isCorrect(marked[currQ]);
     }
@@ -34,7 +49,7 @@ public class QuestionPaper {
         String ans = "";
         for(int i=0;i<numOfQs;i++){
             ans+="q: "+i+" marked: "+marked[i]+" correct: "+ql[i].answer+"\n";
-            if(marked[i]==ql[i].answer) score++;
+            score += time[i]*2;
         }
         return score+"\n"+ans;
     }
@@ -45,10 +60,12 @@ public class QuestionPaper {
         Log.d("numOfQs", ""+numOfQs);
         ql = new Question[numOfQs];
         marked = new int[numOfQs];
+        time = new int[numOfQs];
         for(int i =0;i<numOfQs;i++){
             line = br.readLine();
             ql[i] = new Question(line);
             marked[i] = -1;
+            time[i] = 0;
         }
     }
 
@@ -59,10 +76,12 @@ public class QuestionPaper {
         Log.d("numOfQs", ""+numOfQs);
         ql = new Question[numOfQs];
         marked = new int[numOfQs];
+        time = new int[numOfQs];
         for(int i =0;i<numOfQs;i++){
             line = lines[i+1];//0th line gave number of qs
             ql[i] = new Question(line);
             marked[i] = -1;
+            time[i] = 0;
         }
     }
 }

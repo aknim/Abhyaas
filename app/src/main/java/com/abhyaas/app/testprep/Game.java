@@ -22,13 +22,14 @@ public class Game extends ActionBarActivity {
 
     RadioGroup rg;
     RadioButton op1, op2, op3, op4;
-    TextView ques, debug;
+    TextView ques, debug, timer, score;
     CountDownTimer cdt;
     CountDownTimer pause;
     int currQ;
     QuestionPaper qp;
     Intent endQP;
-
+    int currTime=0;
+    String result = "";
     enum states{newQuestionState, OptionSelectedState, CorrectOptionState, noOptionChosenState, IncorrectOptionState
     }
 
@@ -51,17 +52,22 @@ public class Game extends ActionBarActivity {
         op4 = (RadioButton)findViewById(R.id.op4);
         ques = (TextView)findViewById(R.id.quesText);
         debug = (TextView)findViewById(R.id.debug);
-        cdt = new CountDownTimer(3000,3000) {
+        timer = (TextView)findViewById(R.id.timer);
+        score = (TextView)findViewById(R.id.score);
+        currTime = 0;
+
+        cdt = new CountDownTimer(5000,1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-
+                currTime = (int) (millisUntilFinished/1000);
+                timer.setText("" + currTime);
             }
 
             @Override
             public void onFinish() {
                 if (state == states.newQuestionState) {//checking as the fun is called even on resetting
                     int correct = qp.ql[currQ].answer;
-                    qp.marked[currQ] = -1;//none selected
+                    qp.mark(-1);//none selected
                     enterNoOptionClickedState(correct);
                 }
             }
@@ -89,6 +95,8 @@ public class Game extends ActionBarActivity {
     private void enterPostQuestionState(){
         cdt.cancel();
         pause.start();
+        score.setText(""+qp.getScore());
+
     }
     private void enterNewQuestionState(){
         rg.clearCheck();
@@ -107,8 +115,9 @@ public class Game extends ActionBarActivity {
 
     private void enterCorrectOptionClickedState(int ans){
         rg.getChildAt(ans).setBackgroundColor(getResources().getColor(R.color.correct));
-
+        qp.markTime(currTime);
         state = states.CorrectOptionState;
+
         enterPostQuestionState();
     }
 
@@ -161,7 +170,7 @@ public class Game extends ActionBarActivity {
                     int marked = rg.indexOfChild((findViewById(rg.getCheckedRadioButtonId())));
                     int correct = qp.ql[currQ].answer;
 
-                    qp.marked[currQ] = marked;
+                    qp.mark(marked);
                     if (qp.isCurrCorrect()) {
                         enterCorrectOptionClickedState(correct);
                     } else {
@@ -193,7 +202,7 @@ public class Game extends ActionBarActivity {
     }
 
     private void displayResult() {
-        String result = qp.result();
+        result = qp.result();
         int score = Integer.parseInt(result.split("\n")[0]);
         String fromServer = "";
         try {
@@ -203,7 +212,9 @@ public class Game extends ActionBarActivity {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-        ((TextView) findViewById(R.id.debug)).setText(fromServer + "\n"+result);
+        result = fromServer+"\n"+result;
+        Log.d("fromServer",result);
+        ((TextView) findViewById(R.id.debug)).setText(result);
     }
 
 
@@ -221,11 +232,14 @@ public class Game extends ActionBarActivity {
             enterNewQuestionState();
         }
         else {
-            endQP= new Intent(this,endQP.class) ;
+            displayResult();
+            endQP= new Intent(this,endQP.class);
+            endQP.putExtra("result",result);
             startActivity(endQP);
             this.finishActivity(0);
             System.exit(0);
         }
+        currTime = 0;
     }
 
     @Override

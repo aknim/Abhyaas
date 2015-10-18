@@ -14,7 +14,8 @@ public class endQP extends ActionBarActivity {
 
     Intent game;
     Button newGame;
-    TextView debug;
+    TextView result;
+    String resultText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,12 +25,19 @@ public class endQP extends ActionBarActivity {
 
     private void initialise() {
         newGame = (Button) findViewById(R.id.newGame);
-        debug = (TextView) findViewById(R.id.debug);
+        result = (TextView) findViewById(R.id.debug2);
+        String r = "";
+        try {
+            r = getIntent().getExtras().getString("result", "empty");
+        }
+        catch(Exception e){
+
+        }
+        result.setText(r);
+
         (newGame).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                debug.setText("Great you clicked");
 
                 game= new Intent(endQP.this,Game.class) ;
                 startActivity(game);

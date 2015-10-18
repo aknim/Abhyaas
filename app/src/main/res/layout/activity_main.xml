@@ -12,6 +12,20 @@
     >
 
     <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="0"
+        android:id="@+id/score"
+        android:layout_gravity="left" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="0"
+        android:id="@+id/timer"
+        android:layout_gravity="right" />
+    <TextView
         android:id="@+id/head"
         android:text="@string/hello_world"
         android:layout_width="wrap_content"
