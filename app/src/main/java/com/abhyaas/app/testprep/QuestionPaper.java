@@ -18,8 +18,8 @@ public class QuestionPaper {
     int score = 0;
 
     int getNext(int inc){
-        currQ = (currQ+inc+numOfQs)%numOfQs;
-        return currQ;
+        currQ += inc;
+        return currQ<numOfQs? currQ:-1;
     }
 
     void mark(int ans){

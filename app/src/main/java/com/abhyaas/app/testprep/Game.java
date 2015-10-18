@@ -1,5 +1,7 @@
 package com.abhyaas.app.testprep;
 
+import android.content.Intent;
+import android.os.CountDownTimer;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,22 +18,21 @@ import java.io.InputStreamReader;
 import java.util.concurrent.ExecutionException;
 
 
-public class MainActivity extends ActionBarActivity {
+public class Game extends ActionBarActivity {
 
     RadioGroup rg;
     RadioButton op1, op2, op3, op4;
     TextView ques, debug;
-    NavigateButton next, previous;
-    Button finish;
-
+    CountDownTimer cdt;
+    CountDownTimer pause;
     int currQ;
     QuestionPaper qp;
+    Intent endQP;
 
-    enum states{newQuestionState, OptionSelectedState, CorrectOptionState, IncorrectOptionState
+    enum states{newQuestionState, OptionSelectedState, CorrectOptionState, noOptionChosenState, IncorrectOptionState
     }
 
     states state;
-    private View.OnClickListener navigateListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,9 +51,34 @@ public class MainActivity extends ActionBarActivity {
         op4 = (RadioButton)findViewById(R.id.op4);
         ques = (TextView)findViewById(R.id.quesText);
         debug = (TextView)findViewById(R.id.debug);
-        next = (NavigateButton)findViewById(R.id.next);
-        previous = (NavigateButton)findViewById(R.id.previous);
-        finish = (Button)findViewById(R.id.finish);
+        cdt = new CountDownTimer(3000,3000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                if (state == states.newQuestionState) {//checking as the fun is called even on resetting
+                    int correct = qp.ql[currQ].answer;
+                    qp.marked[currQ] = -1;//none selected
+                    enterNoOptionClickedState(correct);
+                }
+            }
+        };
+
+        pause = new CountDownTimer(1000,1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                setupQuestion(1);
+            }
+        };
+
 
         downloadAndSetupQP();
         setupQuestion(1);
@@ -60,6 +86,10 @@ public class MainActivity extends ActionBarActivity {
         setupView();
     }
 
+    private void enterPostQuestionState(){
+        cdt.cancel();
+        pause.start();
+    }
     private void enterNewQuestionState(){
         rg.clearCheck();
         op1.setBackgroundColor(getResources().getColor(R.color.notSelected));
@@ -67,9 +97,7 @@ public class MainActivity extends ActionBarActivity {
         op3.setBackgroundColor(getResources().getColor(R.color.notSelected));
         op4.setBackgroundColor(getResources().getColor(R.color.notSelected));
 
-        previous.setEnabled(false);
-        next.setEnabled(false);
-
+        cdt.start();
         state = states.newQuestionState;
     }
 
@@ -80,20 +108,22 @@ public class MainActivity extends ActionBarActivity {
     private void enterCorrectOptionClickedState(int ans){
         rg.getChildAt(ans).setBackgroundColor(getResources().getColor(R.color.correct));
 
-        previous.setEnabled(true);
-        next.setEnabled(true);
-
         state = states.CorrectOptionState;
+        enterPostQuestionState();
+    }
+
+    private void enterNoOptionClickedState(int ans){
+        rg.getChildAt(ans).setBackgroundColor(getResources().getColor(R.color.incorrect));
+        state = states.noOptionChosenState;
+        enterPostQuestionState();
     }
 
     private void enterIncorrectOptionClickedState(int ans, int wrong){
         rg.getChildAt(ans).setBackgroundColor(getResources().getColor(R.color.correct));
         rg.getChildAt(wrong).setBackgroundColor(getResources().getColor(R.color.incorrect));
 
-        previous.setEnabled(true);
-        next.setEnabled(true);
-
         state = states.IncorrectOptionState;
+        enterPostQuestionState();
     }
     /*
     Not in use
@@ -123,18 +153,11 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void setupListeners() {
-        navigateListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                    setupQuestion(((NavigateButton) v).increment);
-            }
-        };
-
 
         rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if(state == states.newQuestionState) {//checking as the fun is called even on resetting
+                if (state == states.newQuestionState) {//checking as the fun is called even on resetting
                     int marked = rg.indexOfChild((findViewById(rg.getCheckedRadioButtonId())));
                     int correct = qp.ql[currQ].answer;
 
@@ -145,13 +168,6 @@ public class MainActivity extends ActionBarActivity {
                         enterIncorrectOptionClickedState(correct, marked);
                     }
                 }
-            }
-        });
-
-        ((Button) findViewById(R.id.finish)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                displayResult();
             }
         });
 
@@ -174,8 +190,6 @@ public class MainActivity extends ActionBarActivity {
 
     private void setupView() {
         ((TextView) findViewById(R.id.head)).setText("Do you got what it takes!!");
-        (next).set(1, "next", navigateListener);
-        (previous).set(-1, "previous", navigateListener);
     }
 
     private void displayResult() {
@@ -195,16 +209,23 @@ public class MainActivity extends ActionBarActivity {
 
     private void setupQuestion(int increment) {
         currQ = qp.getNext(increment);
-        
-        Question q = qp.ql[currQ];
-        //setValues
-        ques.setText(q.question);
-        op1.setText(q.op1);
-        op2.setText(q.op2);
-        op3.setText(q.op3);
-        op4.setText(q.op4);
-        //state related changes. The above defines the state
-        enterNewQuestionState();
+        if(currQ!=-1) {
+            Question q = qp.ql[currQ];
+            //setValues
+            ques.setText(q.question);
+            op1.setText(q.op1);
+            op2.setText(q.op2);
+            op3.setText(q.op3);
+            op4.setText(q.op4);
+            //state related changes. The above defines the state
+            enterNewQuestionState();
+        }
+        else {
+            endQP= new Intent(this,endQP.class) ;
+            startActivity(endQP);
+            this.finishActivity(0);
+            System.exit(0);
+        }
     }
 
     @Override
@@ -228,5 +249,6 @@ public class MainActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 
 }
