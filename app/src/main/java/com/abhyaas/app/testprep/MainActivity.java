@@ -1,10 +1,5 @@
 package com.abhyaas.app.testprep;
 
-import android.content.Context;
-import android.content.res.AssetManager;
-import android.graphics.Color;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,33 +12,25 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.util.concurrent.ExecutionException;
-
-import static android.content.Context.MODE_PRIVATE;
 
 
 public class MainActivity extends ActionBarActivity {
 
-    Question q;
-    QuestionPaper qp;
+    RadioGroup rg;
+    RadioButton op1, op2, op3, op4;
+    TextView ques, debug;
+    NavigateButton next, previous;
+    Button finish;
+
     int currQ;
+    QuestionPaper qp;
 
-    int totalSize;
+    enum states{newQuestionState, OptionSelectedState, CorrectOptionState, IncorrectOptionState
+    }
 
+    states state;
     private View.OnClickListener navigateListener;
 
     @Override
@@ -55,14 +42,59 @@ public class MainActivity extends ActionBarActivity {
     }
 
     protected void initialise() {
-        setupQuestionPaper();
-        Log.d("tracing", "b4 qp.nxt");
-        q = qp.getNext(1);
-        setupQuestion();
+        //make global views
+        rg = (RadioGroup)findViewById(R.id.rgroup);
+        op1 = (RadioButton)findViewById(R.id.op1);
+        op2 = (RadioButton)findViewById(R.id.op2);
+        op3 = (RadioButton)findViewById(R.id.op3);
+        op4 = (RadioButton)findViewById(R.id.op4);
+        ques = (TextView)findViewById(R.id.quesText);
+        debug = (TextView)findViewById(R.id.debug);
+        next = (NavigateButton)findViewById(R.id.next);
+        previous = (NavigateButton)findViewById(R.id.previous);
+        finish = (Button)findViewById(R.id.finish);
+
+        downloadAndSetupQP();
+        setupQuestion(1);
         setupListeners();
         setupView();
     }
 
+    private void enterNewQuestionState(){
+        rg.clearCheck();
+        op1.setBackgroundColor(getResources().getColor(R.color.notSelected));
+        op2.setBackgroundColor(getResources().getColor(R.color.notSelected));
+        op3.setBackgroundColor(getResources().getColor(R.color.notSelected));
+        op4.setBackgroundColor(getResources().getColor(R.color.notSelected));
+
+        previous.setEnabled(false);
+        next.setEnabled(false);
+
+        state = states.newQuestionState;
+    }
+
+    private void enterOptionClickedState(){
+        state = states.OptionSelectedState;
+    }
+
+    private void enterCorrectOptionClickedState(int ans){
+        rg.getChildAt(ans).setBackgroundColor(getResources().getColor(R.color.correct));
+
+        previous.setEnabled(true);
+        next.setEnabled(true);
+
+        state = states.CorrectOptionState;
+    }
+
+    private void enterIncorrectOptionClickedState(int ans, int wrong){
+        rg.getChildAt(ans).setBackgroundColor(getResources().getColor(R.color.correct));
+        rg.getChildAt(wrong).setBackgroundColor(getResources().getColor(R.color.incorrect));
+
+        previous.setEnabled(true);
+        next.setEnabled(true);
+
+        state = states.IncorrectOptionState;
+    }
     /*
     Not in use
      */
@@ -78,7 +110,7 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    private void setupQuestionPaper(){
+    private void downloadAndSetupQP(){
         try {
             Log.d("tracing", "try of setupQP");
             String qp_text = new Post().execute("req","").get();
@@ -94,20 +126,31 @@ public class MainActivity extends ActionBarActivity {
         navigateListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                RadioGroup rg = (RadioGroup) findViewById(R.id.rgroup);
-                q.setMarkedAnswer(rg.indexOfChild(rg.findViewById(rg.getCheckedRadioButtonId())) + 1);
-                Log.d("bugMOT", qp.result());
-                q = qp.getNext(((NavigateButton) v).increment);
-                ((TextView) findViewById(R.id.debug)).setText("lsnr" + q.markedAnswer);
-                setupQuestion();
+                    setupQuestion(((NavigateButton) v).increment);
             }
         };
+
+
+        rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if(state == states.newQuestionState) {//checking as the fun is called even on resetting
+                    int marked = rg.indexOfChild((findViewById(rg.getCheckedRadioButtonId())));
+                    int correct = qp.ql[currQ].answer;
+
+                    qp.marked[currQ] = marked;
+                    if (qp.isCurrCorrect()) {
+                        enterCorrectOptionClickedState(correct);
+                    } else {
+                        enterIncorrectOptionClickedState(correct, marked);
+                    }
+                }
+            }
+        });
 
         ((Button) findViewById(R.id.finish)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                RadioGroup rg = (RadioGroup) findViewById(R.id.rgroup);
-                q.setMarkedAnswer(rg.indexOfChild(rg.findViewById(rg.getCheckedRadioButtonId())) + 1);
                 displayResult();
             }
         });
@@ -131,8 +174,8 @@ public class MainActivity extends ActionBarActivity {
 
     private void setupView() {
         ((TextView) findViewById(R.id.head)).setText("Do you got what it takes!!");
-        ((NavigateButton) findViewById(R.id.next)).set(1, "next", navigateListener);
-        ((NavigateButton) findViewById(R.id.previous)).set(-1, "previous", navigateListener);
+        (next).set(1, "next", navigateListener);
+        (previous).set(-1, "previous", navigateListener);
     }
 
     private void displayResult() {
@@ -150,26 +193,18 @@ public class MainActivity extends ActionBarActivity {
     }
 
 
-    private void setupQuestion() {
-        ((TextView) findViewById(R.id.quesText)).setText(q.question);
-        RadioButton rb1 = ((RadioButton) findViewById(R.id.op1));
-        RadioButton rb2 = ((RadioButton) findViewById(R.id.op2));
-        RadioButton rb3 = ((RadioButton) findViewById(R.id.op3));
-        RadioButton rb4 = ((RadioButton) findViewById(R.id.op4));
-
-        rb1.setText(q.op1);
-        rb2.setText(q.op2);
-        rb3.setText(q.op3);
-        rb4.setText(q.op4);
-        RadioGroup rg = (RadioGroup) findViewById(R.id.rgroup);
-
-        int checkId = rg.getCheckedRadioButtonId();
-        rg.clearCheck();
-        if (q.markedAnswer != -2 && q.markedAnswer != 0) {
-            rg.check(((RadioButton) rg.getChildAt(q.markedAnswer - 1)).getId());
-            ((RadioButton) rg.getChildAt(q.markedAnswer - 1)).setChecked(true);
-        }
-        //Set to 0, when it clears the check. When it clears the check, it stores the value of 0
+    private void setupQuestion(int increment) {
+        currQ = qp.getNext(increment);
+        
+        Question q = qp.ql[currQ];
+        //setValues
+        ques.setText(q.question);
+        op1.setText(q.op1);
+        op2.setText(q.op2);
+        op3.setText(q.op3);
+        op4.setText(q.op4);
+        //state related changes. The above defines the state
+        enterNewQuestionState();
     }
 
     @Override

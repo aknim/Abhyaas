@@ -7,8 +7,7 @@ import android.util.Log;
  */
 public class Question {
     String question, op1, op2, op3, op4;
-    int answer = -1;//1-4
-    int markedAnswer = 0;
+    int answer = -1;//0-3
 
     public Question(String q, String o1, String o2, String o3, String o4, int ans){
         question = q;
@@ -19,24 +18,16 @@ public class Question {
         answer = ans;
     }
 
+    public boolean isCorrect(int option){
+        return option == answer;
+    }
     public Question(String line){
-        Log.d("line", line);
         String [] lineSplit = line.split(";");
         question = lineSplit[0];
         op1 = lineSplit[1];
         op2 = lineSplit[2];
         op3 = lineSplit[3];
         op4 = lineSplit[4];
-        Log.d("line5",lineSplit[5]);
         answer = Integer.parseInt(lineSplit[5]);
     }
-
-    public void setMarkedAnswer(int markedAnswer) {
-        this.markedAnswer = markedAnswer;
-    }
-
-    public boolean isCorrect(){
-        return answer == markedAnswer;
-    }
-
 }
